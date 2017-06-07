@@ -35,6 +35,9 @@ class InverseSolutionConnInputSpec(BaseInterfaceInputSpec):
     is_fixed = traits.Bool(False, usedefault=True,
                            desc='if true we use fixed orientation',
                            mandatory=False)
+    is_mixed = traits.Bool('False', usedefault=True,
+                           desc='if true we use mixed orientation',
+                           mandatory=False)
     events_id = traits.Dict(None, desc='the id of all events to consider.',
                             mandatory=False)
     t_min = traits.Float(None, desc='start time before event', mandatory=False)
@@ -142,6 +145,7 @@ class InverseSolution(BaseInterface):
         fwd_filename = self.inputs.fwd_filename
         is_epoched = self.inputs.is_epoched
         is_fixed = self.inputs.is_fixed
+        is_mixed = self.inputs.is_mixed
         events_id = self.inputs.events_id
         t_min = self.inputs.t_min
         t_max = self.inputs.t_max
@@ -161,7 +165,7 @@ class InverseSolution(BaseInterface):
                                       t_min, t_max, is_evoked,
                                       snr, inv_method, parc,
                                       aseg, aseg_labels, all_src_space,
-                                      ROIs_mean, is_fixed)
+                                      ROIs_mean, is_fixed, is_mixed)
 
         return runtime
 

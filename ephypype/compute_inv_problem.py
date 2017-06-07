@@ -148,7 +148,7 @@ def _compute_inverse_solution(raw_filename, sbj_id, subjects_dir, fwd_filename,
                               snr=1.0, inv_method='MNE',
                               parc='aparc', aseg=False, aseg_labels=[],
                               all_src_space=False, ROIs_mean=True,
-                              is_fixed=False):
+                              is_fixed=False, is_mixed=False):
     """
     Compute the inverse solution on raw/epoched data and return the average
     time series computed in the N_r regions of the source space defined by
@@ -237,6 +237,10 @@ def _compute_inverse_solution(raw_filename, sbj_id, subjects_dir, fwd_filename,
         forward = mne.convert_forward_solution(forward, surf_ori=True,
                                                force_fixed=is_fixed,
                                                use_cps=False)
+    else:
+        print('\n*** mixed orientation True ***\n')
+        forward = mne.convert_forward_solution(forward, surf_ori=False,
+                                               is_mixed=is_mixed)
 
     lambda2 = 1.0 / snr ** 2
 
@@ -258,7 +262,8 @@ def _compute_inverse_solution(raw_filename, sbj_id, subjects_dir, fwd_filename,
     print(('\n *** loose {}  depth {} ***\n'.format(loose, depth)))
     inverse_operator = make_inverse_operator(info, forward, noise_cov,
                                              loose=loose, depth=depth,
-                                             fixed=is_fixed)
+                                             fixed=is_fixed,
+                                             is_mixed=is_mixed)
 
     # apply inverse operator to the time windows [t_start, t_stop]s
     print('\n*** APPLY INV OP ***\n')

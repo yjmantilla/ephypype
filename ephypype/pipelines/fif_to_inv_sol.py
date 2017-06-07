@@ -27,7 +27,8 @@ def create_pipeline_source_reconstruction(main_path, subjects_dir,
                                           all_src_space=False,
                                           ROIs_mean=True,
                                           save_mixed_src_space=False,
-                                          is_fixed=False):
+                                          is_fixed=False,
+                                          is_mixed=True):
     """Source reconstruction pipeline.
 
     Parameters
@@ -130,6 +131,7 @@ def create_pipeline_source_reconstruction(main_path, subjects_dir,
     inv_solution.inputs.inv_method = inv_method
     inv_solution.inputs.is_epoched = is_epoched
     inv_solution.inputs.is_fixed = is_fixed
+    inv_solution.inputs.is_mixed = is_mixed
 
     if is_epoched and events_id is not None:
         inv_solution.inputs.events_id = events_id
