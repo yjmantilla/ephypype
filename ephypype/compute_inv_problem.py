@@ -361,12 +361,10 @@ def _compute_mean_ROIs(stc, sbj_id, subjects_dir, parc, inverse_operator,
 
     # allow_empty : bool -> Instead of emitting an error, return all-zero time
     # courses for labels that do not have any vertices in the source estimate
-
     if is_fixed:
         mode = 'mean_flip'
     else:
         mode = 'mean'
-
     label_ts = mne.extract_label_time_course(stc, labels_cortex, src,
                                              mode=mode,
                                              allow_empty=True,
