@@ -28,7 +28,7 @@ def create_pipeline_source_reconstruction(main_path, sbj_dir,
                                           save_stc=False,
                                           save_mixed_src_space=False,
                                           is_fixed=False,
-                                          is_mixed=True):
+                                          is_mixed=False):
 
     """
     Description:
