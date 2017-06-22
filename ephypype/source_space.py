@@ -211,3 +211,4 @@ def _create_MNI_label_files(fwd, labels_cortex, labels_aseg, sbj,
         pickle.dump(roi, f)
 
     return labels_file, label_names_file, label_coords_file
+
