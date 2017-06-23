@@ -207,7 +207,6 @@ def _compute_inverse_solution(raw_filename, sbj_id, subjects_dir, fwd_filename,
             centroid of the ROIs of the parcellation
 
     """
-
     try:
         traits.undefined(events_id)
     except NameError:
