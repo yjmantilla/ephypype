@@ -206,6 +206,7 @@ def _create_MNI_label_files(fwd, labels_cortex, labels_aseg, sbj,
                ROI_colors=roi_colors)
 
     print(('*** written {} labels in a pickle ***'.format(len(roi_names))))
+
     labels_file = op.abspath('labels.pkl')
     with open(labels_file, "wb") as f:
         pickle.dump(roi, f)
