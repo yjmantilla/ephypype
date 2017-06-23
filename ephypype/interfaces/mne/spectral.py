@@ -286,7 +286,6 @@ class PlotSpectralConn(BaseInterface):
                     name for name in label_names if name.endswith('lh')]
                 rh_labels = [
                     name for name in label_names if name.endswith('rh')]
-
                 # Get the y-location of the label
                 label_ypos_lh = list()
                 for name in lh_labels:
