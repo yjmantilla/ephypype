@@ -237,9 +237,11 @@ def _compute_inverse_solution(raw_filename, sbj_id, subjects_dir, fwd_filename,
                                                force_fixed=is_fixed,
                                                use_cps=False)
     else:
-        print('\n*** mixed orientation True ***\n')
+        if not is_mixed:
+            raise ValueError('For aseg mixed orientation has to be True ***\n')
+        print('\n *** is mixed = {} *** \n'.format(is_mixed))
         forward = mne.convert_forward_solution(forward, surf_ori=False,
-                                               is_mixed=is_mixed)
+                                                   is_mixed=is_mixed)
 
     lambda2 = 1.0 / snr ** 2
 
