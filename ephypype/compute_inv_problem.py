@@ -259,9 +259,11 @@ def compute_ROIs_inv_sol(raw_filename, sbj_id, sbj_dir, fwd_filename,
         forward = mne.convert_forward_solution(forward, surf_ori=True,
                                                force_fixed=is_fixed)
     else:
-        print('\n*** mixed orientation True ***\n')
+        if not is_mixed:
+            raise ValueError('For aseg mixed orientation has to be True ***\n')
+        print('\n *** is mixed = {} *** \n'.format(is_mixed))
         forward = mne.convert_forward_solution(forward, surf_ori=False,
-                                               is_mixed=is_mixed)
+                                                   is_mixed=is_mixed)
 
     lambda2 = 1.0 / snr ** 2
 
@@ -354,44 +356,51 @@ def compute_ROIs_inv_sol(raw_filename, sbj_id, sbj_dir, fwd_filename,
 #	    if not op.isfile(stc_file):
             np.save(stc_file, stc[i].data)    
 
-    labels_cortex = mne.read_labels_from_annot(sbj_id, parc=parc,
-                                               subjects_dir=sbj_dir)
-
-    print '\n*** %d ***\n' % len(labels_cortex)
-
-    src = inverse_operator['src']
-
-    # allow_empty : bool -> Instead of emitting an error, return all-zero time
-    # courses for labels that do not have any vertices in the source estimate
+    if not is_mixed:
+        labels_cortex = mne.read_labels_from_annot(sbj_id, parc=parc,
+                                                   subjects_dir=sbj_dir)
     
-    if is_fixed:
-        mode='mean_flip'
+        print '\n*** %d ***\n' % len(labels_cortex)
+    
+        src = inverse_operator['src']
+    
+        # allow_empty : bool -> Instead of emitting an error, return all-zero time
+        # courses for labels that do not have any vertices in the source estimate
+        
+        if is_fixed:
+            mode='mean_flip'
+        else:
+            mode='mean'
+        label_ts = mne.extract_label_time_course(stc, labels_cortex, src,
+                                                 mode=mode,
+                                                 allow_empty=True,
+                                                 return_generator=False)
+    
+        # save results in .npy file that will be the input for spectral node
+        print '\n*** SAVE ROI TS ***\n'
+        print len(label_ts)
+    
+        ts_file = op.abspath(basename + '_ROI_ts.npy')
+        np.save(ts_file, label_ts)
+    
+        if aseg:
+            print sbj_id
+            labels_aseg = get_volume_labels_from_src(src, sbj_id, sbj_dir)
+            labels = labels_cortex + labels_aseg
+        else:
+            labels = labels_cortex
+    
+        print labels[0].pos
+        print len(labels)
+    
+    #    labels_file, label_names_file, label_coords_file = create_label_files(labels)
+        labels_file, label_names_file, label_coords_file = \
+            create_MNI_label_files(forward, labels_cortex, labels_aseg,
+                                   sbj_id, sbj_dir)
+
     else:
-        mode='mean'
-    label_ts = mne.extract_label_time_course(stc, labels_cortex, src,
-                                             mode=mode,
-                                             allow_empty=True,
-                                             return_generator=False)
-
-    # save results in .npy file that will be the input for spectral node
-    print '\n*** SAVE ROI TS ***\n'
-    print len(label_ts)
-
-    ts_file = op.abspath(basename + '_ROI_ts.npy')
-    np.save(ts_file, label_ts)
-
-    if aseg:
-        print sbj_id
-        labels_aseg = get_volume_labels_from_src(src, sbj_id, sbj_dir)
-        labels = labels_cortex + labels_aseg
-    else:
-        labels = labels_cortex
-
-    print labels[0].pos
-    print len(labels)
-
-#    labels_file, label_names_file, label_coords_file = create_label_files(labels)
-    labels_file, label_names_file, label_coords_file = \
-        create_MNI_label_files(forward, labels_cortex, labels_aseg,
-                               sbj_id, sbj_dir)
+          ts_file = ''
+          labels_file = ''
+          label_names_file = ''
+          label_coords_file = ''
     return ts_file, labels_file, label_names_file, label_coords_file
