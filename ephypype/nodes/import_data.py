@@ -365,3 +365,49 @@ class ConvertDs2Fif(BaseInterface):
         outputs["fif_file"] = self.fif_file
 
         return outputs
+
+
+class ConvertItab2FifInputSpec(BaseInterfaceInputSpec):
+    """Input specification for ConvertItab2Fif"""
+
+    itab_file = traits.File(exists=True,
+                            desc='raw .raw file',
+                            mandatory=True)
+
+
+class ConvertItab2FifOutputSpec(TraitedSpec):
+    ''' Output spec for ConvertItab2Fif '''
+
+    fif_file = traits.File(exists=True, desc='raw .fif file')
+
+
+class ConvertItab2Fif(BaseInterface):
+
+    """
+    Description:
+
+    Inputs:
+
+    Outputs:
+
+    """
+    input_spec = ConvertItab2FifInputSpec
+    output_spec = ConvertItab2FifOutputSpec
+
+    def _run_interface(self, runtime):
+
+        from ephypype.import_itab import convert_itab_to_raw_fif
+
+        itab_file = self.inputs.itab_file
+
+        self.fif_file = convert_itab_to_raw_fif(itab_file)
+
+        return runtime
+
+    def _list_outputs(self):
+
+        outputs = self._outputs().get()
+
+        outputs["fif_file"] = self.fif_file
+
+        return outputs
