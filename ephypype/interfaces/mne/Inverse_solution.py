@@ -2,6 +2,7 @@
 # @author: pasca
 
 import os.path as op
+import numpy as np
 import sys
 import glob
 
@@ -13,6 +14,7 @@ from nipype.interfaces.base import traits, File, TraitedSpec
 from ephypype.compute_inv_problem import compute_ROIs_inv_sol
 from ephypype.preproc import create_reject_dict
 from mne import find_events, compute_raw_covariance, compute_covariance
+from mne import Covariance
 from mne import pick_types, write_cov, Epochs
 from mne.io import read_raw_fif, read_raw_ctf
 
@@ -292,8 +294,21 @@ class NoiseCovariance(BaseInterface):
                             print '\n *** NOISE cov file %s exists!!! \n' \
                                 % self.cov_fname_out
                 except NameError:
-                    sys.exit("No covariance matrix as input!")
-                                    # TODO creare una matrice diagonale?
+#                    sys.exit("No covariance matrix as input!")
+                    # TODO creare una matrice diagonale?
+                    print('*** create an identity noise cov matrix ***')
+                    self.cov_fname_out = op.join(data_path, '%s-cov.fif' % basename)
+
+                    raw = read_raw_fif(raw_filename)
+                    picks = pick_types(raw.info, meg=True, ref_meg=False,
+                                       exclude='bads')
+                    noise_cov = Covariance(np.identity(len(picks)),
+                                           raw.info['ch_names'],
+                                           raw.info['bads'],
+                                           raw.info['projs'], nfree=0)
+
+                    write_cov(self.cov_fname_out, noise_cov)
+                    print('*** wrote noise DIAG cov matrix {} ***'.format(self.cov_fname_out))
 
         else:
             print '\n *** NOISE cov file %s exists!!! \n' % cov_fname_in
