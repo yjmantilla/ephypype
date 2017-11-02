@@ -22,10 +22,11 @@ def convert_itab_to_raw_fif(itab_file):
 
     if not op.isfile(raw_fif_file):
         raw = read_raw_itab(itab_file, preload=True)
-        channel_indices = mne.pick_types(raw.info, meg=True)  # TODO
+        channel_indices = mne.pick_types(raw.info, meg=True, bio=True)  # TODO
         print('****************************** {}'.format(raw.info['chs'][0]['logno']))
                           
         raw.save(raw_fif_file, picks=channel_indices, overwrite=True)
+        # raw.save(raw_fif_file, overwrite=True)
     else:
         print('*** RAW FIF file %s exists!!!' % raw_fif_file)
 
