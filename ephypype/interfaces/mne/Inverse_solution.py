@@ -139,7 +139,6 @@ class InverseSolution(BaseInterface):
         fwd_filename = self.inputs.fwd_filename
         is_epoched = self.inputs.is_epoched
         is_fixed = self.inputs.is_fixed
-        is_mixed = self.inputs.is_mixed
         events_id = self.inputs.events_id
         t_min = self.inputs.t_min
         t_max = self.inputs.t_max
@@ -157,7 +156,7 @@ class InverseSolution(BaseInterface):
                                  t_min, t_max, is_evoked,
                                  snr, inv_method, parc,
                                  aseg, aseg_labels, save_stc,
-                                 is_fixed, is_mixed)
+                                 is_fixed)
 
         return runtime
 
