@@ -100,6 +100,7 @@ def create_pipeline_preproc_meeg(main_path,
     from ephypype.interfaces.mne.preproc import PreprocFif
     from ephypype.interfaces.mne.preproc import CompIca
     from ephypype.nodes.import_data import ConvertDs2Fif
+    from ephypype.nodes.import_data import ConvertItab2Fif
     from ephypype.preproc import preprocess_set_ICA_comp_fif_to_ts
     from nipype.interfaces.utility import IdentityInterface, Function
 
@@ -120,6 +121,9 @@ def create_pipeline_preproc_meeg(main_path,
     if data_type is 'ds':
         ds2fif_node = pe.Node(interface=ConvertDs2Fif(), name='ds2fif')
         pipeline.connect(inputnode, 'raw_file', ds2fif_node, 'ds_file')
+    elif data_type is 'itab':
+        itab2fif_node = pe.Node(interface=ConvertItab2Fif(), name='itab2fif')
+        pipeline.connect(inputnode, 'raw_file', itab2fif_node, 'itab_file')
 
     # preprocess
     if not is_set_ICA_components:
@@ -131,6 +135,8 @@ def create_pipeline_preproc_meeg(main_path,
 
         if data_type is 'ds':
             pipeline.connect(ds2fif_node, 'fif_file', preproc_node, 'fif_file')
+        elif data_type is 'itab':
+            pipeline.connect(itab2fif_node, 'fif_file', preproc_node, 'fif_file')
         elif data_type is 'fif':
             pipeline.connect(inputnode, 'raw_file', preproc_node, 'fif_file')
 
@@ -159,7 +165,6 @@ def create_pipeline_preproc_meeg(main_path,
             ica_node.inputs.n_components = variance
             ica_node.inputs.ecg_ch_name = ECG_ch_name
             ica_node.inputs.eog_ch_name = EoG_ch_name
-
             if reject:
                 ica_node.inputs.reject = reject
 
