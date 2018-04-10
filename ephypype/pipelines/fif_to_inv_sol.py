@@ -29,7 +29,6 @@ def create_pipeline_source_reconstruction(main_path, sbj_dir,
                                           save_mixed_src_space=False,
                                           is_fixed=False,
                                           is_mixed=False):
-
     """
     Description:
 
@@ -52,6 +51,8 @@ def create_pipeline_source_reconstruction(main_path, sbj_dir,
             in the format -epo.fif
             if True and events_id is not None, the raw data are epoched
             according to events_id and t_min and t_max values
+        is_fixed : bool (default False)
+            if True we use fixed orientation
         events_id: dict (default None)
             the dict of events
         t_min, t_max: int (defualt None)
@@ -73,13 +74,13 @@ def create_pipeline_source_reconstruction(main_path, sbj_dir,
             if True the stc will be saved
         save_mixed_src_space: bool (defualt False)
             if True the mixed src space will be saved in the FS folder
-            
+
     Inputs (inputnode):
 
         raw : str
-	    path to raw data in fif format
+            path to raw data in fif format
         sbj_id : str
-	    subject id
+            subject id
 
     Outouts:
 
@@ -101,7 +102,6 @@ def create_pipeline_source_reconstruction(main_path, sbj_dir,
     if aseg:
         LF_computation.inputs.aseg_labels = aseg_labels
         LF_computation.inputs.save_mixed_src_space = save_mixed_src_space
-        
 
     pipeline.connect(inputnode, 'sbj_id', LF_computation, 'sbj_id')
 
@@ -142,7 +142,7 @@ def create_pipeline_source_reconstruction(main_path, sbj_dir,
     inv_solution.inputs.is_epoched = is_epoched
     inv_solution.inputs.is_fixed = is_fixed
     inv_solution.inputs.is_mixed = is_mixed
-    
+
     if is_epoched and events_id is not None:
         inv_solution.inputs.events_id = events_id
         inv_solution.inputs.t_min = t_min

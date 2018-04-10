@@ -27,7 +27,7 @@ def compute_noise_cov(cov_fname, raw):
     from nipype.utils.filemanip import split_filename as split_f
     from ephypype.preproc import create_reject_dict
 
-    print '***** COMPUTE RAW COV *****' + cov_fname
+    print(('***** COMPUTE RAW COV *****' + cov_fname))
 
     if not op.isfile(cov_fname):
 
@@ -43,7 +43,7 @@ def compute_noise_cov(cov_fname, raw):
         write_cov(fname, noise_cov)
 
     else:
-        print '*** NOISE cov file %s exists!!!' % cov_fname
+        print(('*** NOISE cov file %s exists!!!' % cov_fname))
 
     return cov_fname
 
@@ -66,7 +66,7 @@ def read_noise_cov(cov_fname, raw_info):
     import numpy as np
     import mne
 
-    print '***** READ RAW COV *****' + cov_fname
+    print(('***** READ RAW COV *****' + cov_fname))
 
     if not op.isfile(cov_fname):
         # create an Identity matrix
@@ -78,12 +78,14 @@ def read_noise_cov(cov_fname, raw_info):
                            bads=[], projs=[], nfree=0)
         mne.write_cov(cov_fname, C)
     else:
-        print '*** noise covariance file %s exists!!!' % cov_fname
+        print(('*** noise covariance file %s exists!!!' % cov_fname))
         noise_cov = mne.read_cov(cov_fname)
 
     return noise_cov
 
 # TODO remove it!!! not used
+
+
 def compute_ts_inv_sol(raw, fwd_filename, cov_fname, snr, inv_method, aseg):
     import os.path as op
     import numpy as np
@@ -91,7 +93,7 @@ def compute_ts_inv_sol(raw, fwd_filename, cov_fname, snr, inv_method, aseg):
     from mne.minimum_norm import make_inverse_operator, apply_inverse_raw
     from nipype.utils.filemanip import split_filename as split_f
 
-    print '***** READ FWD SOL %s *****' % fwd_filename
+    print(('***** READ FWD SOL %s *****' % fwd_filename))
     forward = mne.read_forward_solution(fwd_filename)
 
     # Convert to surface orientation for cortically constrained
@@ -102,7 +104,7 @@ def compute_ts_inv_sol(raw, fwd_filename, cov_fname, snr, inv_method, aseg):
     lambda2 = 1.0 / snr ** 2
 
     # compute inverse operator
-    print '***** COMPUTE INV OP *****'
+    print('***** COMPUTE INV OP *****')
     inverse_operator = make_inverse_operator(raw.info, forward, cov_fname,
                                              loose=0.2, depth=0.8)
 
@@ -111,26 +113,27 @@ def compute_ts_inv_sol(raw, fwd_filename, cov_fname, snr, inv_method, aseg):
     t_start = 0  # sec
     t_stop = 3  # sec
     start, stop = raw.time_as_index([t_start, t_stop])
-    print '***** APPLY INV OP ***** [%d %d]sec' % (t_start, t_stop)
+    print(('***** APPLY INV OP ***** [%d %d]sec' % (t_start, t_stop)))
     stc = apply_inverse_raw(raw, inverse_operator, lambda2, inv_method,
                             label=None,
                             start=start, stop=stop, pick_ori=None)
 
-    print '***'
-    print 'stc dim ' + str(stc.shape)
-    print '***'
+    print('***')
+    print(('stc dim ' + str(stc.shape)))
+    print('***')
 
     subj_path, basename, ext = split_f(raw.info['filename'])
     data = stc.data
 
-    print 'data dim ' + str(data.shape)
+    print(('data dim ' + str(data.shape)))
 
     # save results in .npy file that will be the input for spectral node
-    print '***** SAVE SOL *****'
+    print('***** SAVE SOL *****')
     ts_file = op.abspath(basename + '.npy')
     np.save(ts_file, data)
 
     return ts_file
+
 
 '''
 +---------------------+-----------+-----------+-----------+-----------------+--------------+
@@ -156,6 +159,8 @@ def compute_ts_inv_sol(raw, fwd_filename, cov_fname, snr, inv_method, aseg):
 '''
 
 # TODO too long function -> put lines code about labels in a new little function
+
+
 def compute_ROIs_inv_sol(raw_filename, sbj_id, sbj_dir, fwd_filename,
                          cov_fname, is_epoched=False, events_id=[],
                          t_min=None, t_max=None, is_evoked=False,
@@ -237,25 +242,25 @@ def compute_ROIs_inv_sol(raw_filename, sbj_id, sbj_dir, fwd_filename,
     except NameError:
         events_id = None
 
-    print '\n*** READ raw filename %s ***\n' % raw_filename
+    print(('\n*** READ raw filename %s ***\n' % raw_filename))
     if is_epoched and events_id is None:
         epochs = read_epochs(raw_filename)
         info = epochs.info
     else:
-        raw = read_raw_fif(raw_filename)
-        raw.set_eeg_reference()
+        raw = read_raw_fif(raw_filename, preload=True)
+#        raw.set_eeg_reference()
         info = raw.info
 
     subj_path, basename, ext = split_f(raw_filename)
 
-    print '\n*** READ noise covariance %s ***\n' % cov_fname
+    print(('\n*** READ noise covariance %s ***\n' % cov_fname))
     noise_cov = mne.read_cov(cov_fname)
 
-    print '\n*** READ FWD SOL %s ***\n' % fwd_filename
+    print(('\n*** READ FWD SOL %s ***\n' % fwd_filename))
     forward = mne.read_forward_solution(fwd_filename)
 
     if not aseg:
-        print('\n*** fixed orientation {} ***\n'.format(is_fixed))
+        print(('\n*** fixed orientation {} ***\n'.format(is_fixed)))
         forward = mne.convert_forward_solution(forward, surf_ori=True,
                                                force_fixed=is_fixed)
     else:
@@ -268,9 +273,13 @@ def compute_ROIs_inv_sol(raw_filename, sbj_id, sbj_dir, fwd_filename,
     lambda2 = 1.0 / snr ** 2
 
     # compute inverse operator
-    print '\n*** COMPUTE INV OP ***\n'
-    if is_fixed or aseg:
+    print('\n*** COMPUTE INV OP ***\n')
+    if is_fixed:
         loose = None
+        depth = None
+        pick_ori = None
+    elif aseg:
+        loose = 1
         depth = None
         pick_ori = None
     else:
@@ -278,14 +287,14 @@ def compute_ROIs_inv_sol(raw_filename, sbj_id, sbj_dir, fwd_filename,
         depth = 0.8
         pick_ori = 'normal'
 
-    print('\n *** loose {}  depth {} ***\n'.format(loose, depth))
+    print(('\n *** loose {}  depth {} ***\n'.format(loose, depth)))
     inverse_operator = make_inverse_operator(info, forward, noise_cov,
                                              loose=loose, depth=depth,
                                              fixed=is_fixed,
                                              is_mixed=is_mixed)
 
     # apply inverse operator to the time windows [t_start, t_stop]s
-    print '\n*** APPLY INV OP ***\n'
+    print('\n*** APPLY INV OP ***\n')
     if is_epoched and events_id is not None:
         events = mne.find_events(raw)
         picks = mne.pick_types(info, meg=True, eog=True, exclude='bads')
@@ -298,17 +307,17 @@ def compute_ROIs_inv_sol(raw_filename, sbj_id, sbj_dir, fwd_filename,
             snr = 3.0
             lambda2 = 1.0 / snr ** 2
 
-            ev_list = events_id.items()
+            ev_list = list(events_id.items())
             for k in range(len(events_id)):
                 stc = apply_inverse(evoked[k], inverse_operator, lambda2,
                                     inv_method, pick_ori=pick_ori)
 
-                print '\n*** STC for event %s ***\n' % ev_list[k][0]
+                print(('\n*** STC for event %s ***\n' % ev_list[k][0]))
                 stc_file = op.abspath(basename + '_' + ev_list[k][0])
 
-                print '***'
-                print 'stc dim ' + str(stc.shape)
-                print '***'
+                print('***')
+                print(('stc dim ' + str(stc.shape)))
+                print('***')
 
                 if not aseg:
                     stc.save(stc_file)
@@ -319,18 +328,16 @@ def compute_ROIs_inv_sol(raw_filename, sbj_id, sbj_dir, fwd_filename,
             stc = apply_inverse_epochs(epochs, inverse_operator, lambda2,
                                        inv_method, pick_ori=pick_ori)
 
-            print '***'
-            print 'len stc %d' % len(stc)
-            print '***'
+            print('***')
+            print(('len stc %d' % len(stc)))
+            print('***')
 
     elif is_epoched and events_id is None:
         stc = apply_inverse_epochs(epochs, inverse_operator, lambda2,
-                                   inv_method, pick_ori=None)
-
-        print '***'
-        print 'len stc %d' % len(stc)
-        print '***'
-
+                                   inv_method, pick_ori=pick_ori)
+        print('***')
+        print(('len stc %d' % len(stc)))
+        print('***')
     else:
         stc = apply_inverse_raw(raw, inverse_operator, lambda2, inv_method,
                                 label=None,
@@ -338,72 +345,67 @@ def compute_ROIs_inv_sol(raw_filename, sbj_id, sbj_dir, fwd_filename,
                                 buffer_size=1000,
                                 pick_ori=pick_ori)  # None 'normal'
 
-        print '***'
-        print 'stc dim ' + str(stc.shape)
-        print '***'
+        print('***')
+        print(('stc dim ' + str(stc.shape)))
+        print('***')
 
     if not isinstance(stc, list):
         stc = [stc]
-        
-    if save_stc:
-	for i in range(len(stc)):
-#	    try:
-#		os.mkdir(op.join(subj_path, 'TS'))
-#	    except OSError:
-#		pass
-#	    stc_file = op.join(subj_path, 'TS', basename + '_' +
-#				inv_method + '_stc_' + str(i) + '.npy')
-	    stc_file = op.abspath(basename + '_stc_' + str(i) + '.npy')
 
-#	    if not op.isfile(stc_file):
-            np.save(stc_file, stc[i].data)    
+    if save_stc:
+        for i in range(len(stc)):
+            stc_file = op.abspath(basename + '_stc_' + str(i) + '.npy')
+            np.save(stc_file, stc[i].data)
 
     if not is_mixed:
+        # these coo are in MRI space and we have to convert to MNI space
         labels_cortex = mne.read_labels_from_annot(sbj_id, parc=parc,
                                                    subjects_dir=sbj_dir)
-    
-        print '\n*** %d ***\n' % len(labels_cortex)
-    
+
+        print('\n*** %d ***\n' % len(labels_cortex))
+
         src = inverse_operator['src']
-    
-        # allow_empty : bool -> Instead of emitting an error, return all-zero time
-        # courses for labels that do not have any vertices in the source estimate
-        
+
+        # allow_empty : bool -> Instead of emitting an error, return
+        # all-zero time courses for labels that do not have any vertices in the
+        # source estimate
+
         if is_fixed:
-            mode='mean_flip'
+            mode = 'mean_flip'
         else:
-            mode='mean'
+            mode = 'mean'
         label_ts = mne.extract_label_time_course(stc, labels_cortex, src,
                                                  mode=mode,
                                                  allow_empty=True,
                                                  return_generator=False)
-    
+
         # save results in .npy file that will be the input for spectral node
-        print '\n*** SAVE ROI TS ***\n'
-        print len(label_ts)
-    
+        print('\n*** SAVE ROI TS ***\n')
+        print(len(label_ts))
+
         ts_file = op.abspath(basename + '_ROI_ts.npy')
         np.save(ts_file, label_ts)
-    
+
         if aseg:
-            print sbj_id
+            print(sbj_id)
             labels_aseg = get_volume_labels_from_src(src, sbj_id, sbj_dir)
             labels = labels_cortex + labels_aseg
         else:
             labels = labels_cortex
             labels_aseg = None
-    
-        print labels[0].pos
-        print len(labels)
-    
+
+        print(labels[0].pos)
+        print(len(labels))
+
     #    labels_file, label_names_file, label_coords_file = create_label_files(labels)
         labels_file, label_names_file, label_coords_file = \
             create_MNI_label_files(forward, labels_cortex, labels_aseg,
                                    sbj_id, sbj_dir)
 
     else:
-          ts_file = ''
-          labels_file = ''
-          label_names_file = ''
-          label_coords_file = ''
+        ts_file = ''
+        labels_file = ''
+        label_names_file = ''
+        label_coords_file = ''
+
     return ts_file, labels_file, label_names_file, label_coords_file
