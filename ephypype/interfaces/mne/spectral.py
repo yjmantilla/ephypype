@@ -349,7 +349,6 @@ class PlotSpectralConn(BaseInterface):
                 node_order = list()
                 node_order.extend(lh_labels[::-1])  # reverse the order
 
-
                 node_order.extend(rh_labels)
                 print('\n ********************** \n')
                 print(lh_labels)
