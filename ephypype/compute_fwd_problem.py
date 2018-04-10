@@ -47,11 +47,11 @@ def create_bem_sol(sbj_dir, sbj_id):
         print(('\n*** BEM solution file %s written ***\n' % bem_fname))
 
         # add BEM figures to a Report
-        report.add_bem_to_section(subject=sbj_id, subjects_dir=sbj_dir)
-        report_filename = op.join(bem_dir, "BEM_report.html")
-        print(('\n*** REPORT file %s written ***\n' % report_filename))
-        print(report_filename)
-        report.save(report_filename, open_browser=False, overwrite=True)
+#        report.add_bem_to_section(subject=sbj_id, subjects_dir=sbj_dir)
+#        report_filename = op.join(bem_dir, "BEM_report.html")
+#        print(('\n*** REPORT file %s written ***\n' % report_filename))
+#        print(report_filename)
+#        report.save(report_filename, open_browser=False, overwrite=True)
     else:
         bem = bem_fname
         print(('\n*** BEM solution file %s exists!!! ***\n' % bem_fname))
