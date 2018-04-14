@@ -278,8 +278,8 @@ def compute_ROIs_inv_sol(raw_filename, sbj_id, sbj_dir, fwd_filename,
         loose = None
         depth = None
         pick_ori = None
-    elif aseg:
-        loose = 'auto'
+    elif is_mixed:
+        loose = 1
         depth = None
         pick_ori = None
     else:
@@ -288,6 +288,8 @@ def compute_ROIs_inv_sol(raw_filename, sbj_id, sbj_dir, fwd_filename,
         pick_ori = 'normal'
 
     print(('\n *** loose {}  depth {} ***\n'.format(loose, depth)))
+    print(is_fixed)
+    print(is_mixed)
     inverse_operator = make_inverse_operator(info, forward, noise_cov,
                                              loose=loose, depth=depth,
                                              fixed=is_fixed,
