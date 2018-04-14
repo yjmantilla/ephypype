@@ -251,8 +251,8 @@ def _compute_inverse_solution(raw_filename, sbj_id, subjects_dir, fwd_filename,
         loose = 0
         depth = None
         pick_ori = None
-    elif aseg:
-        loose = 'auto'
+    elif is_mixed:
+        loose = 1
         depth = None
         pick_ori = None
     else:
@@ -261,6 +261,8 @@ def _compute_inverse_solution(raw_filename, sbj_id, subjects_dir, fwd_filename,
         pick_ori = 'normal'
 
     print(('\n *** loose {}  depth {} ***\n'.format(loose, depth)))
+    print(is_fixed)
+    print(is_mixed)
     inverse_operator = make_inverse_operator(info, forward, noise_cov,
                                              loose=loose, depth=depth,
                                              fixed=is_fixed,
