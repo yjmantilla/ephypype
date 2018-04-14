@@ -279,7 +279,7 @@ def compute_ROIs_inv_sol(raw_filename, sbj_id, sbj_dir, fwd_filename,
         depth = None
         pick_ori = None
     elif aseg:
-        loose = 1
+        loose = 'auto'
         depth = None
         pick_ori = None
     else:
