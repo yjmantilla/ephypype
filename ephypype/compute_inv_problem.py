@@ -252,7 +252,7 @@ def _compute_inverse_solution(raw_filename, sbj_id, subjects_dir, fwd_filename,
         depth = None
         pick_ori = None
     elif aseg:
-        loose = 1
+        loose = 'auto'
         depth = None
         pick_ori = None
     else:
