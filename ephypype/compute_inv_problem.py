@@ -241,7 +241,12 @@ def _compute_inverse_solution(raw_filename, sbj_id, subjects_dir, fwd_filename,
             raise ValueError('For aseg mixed orientation has to be True ***\n')
         print('\n *** is mixed = {} *** \n'.format(is_mixed))
         forward = mne.convert_forward_solution(forward, surf_ori=False,
-                                                   is_mixed=is_mixed)
+                                               is_mixed=is_mixed)
+
+#    TEST!
+#    from scipy.io import savemat
+#    savemat('/media/pasca/paska/meg_data/Tarek/data/Pilote6/TEST_fixed.mat',
+#            {'LF': forward['sol']['data']})
 
     lambda2 = 1.0 / snr ** 2
 
