@@ -263,7 +263,8 @@ class NoiseCovariance(BaseInterface):
                     print(('\n *** NOISE cov file %s exists!!! \n'
                            % self.cov_fname_out))
             else:
-                '\n *** RAW DATA \n'
+                print('\n *** RAW DATA \n')
+                print(op.join(data_path, cov_fname_in))
                 for er_fname in glob.glob(op.join(data_path, cov_fname_in)):
                     print(('\n found file name %s  \n' % er_fname))
 
