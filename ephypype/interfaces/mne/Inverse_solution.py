@@ -268,8 +268,10 @@ class NoiseCovariance(BaseInterface):
             else:
                 print('\n *** RAW DATA \n')
                 print(op.join(data_path, cov_fname_in))
-                for er_fname in glob.glob(op.join(data_path, cov_fname_in)):
-                    print(('\n found file name %s  \n' % er_fname))
+                for fname in glob.glob(op.join(data_path, cov_fname_in)):
+                    if fname.endswith('.fif') or fname.endswith('.ds'):
+                        er_fname = fname
+                        print(('\n found file name %s  \n' % er_fname))
 
                 try:
                     if er_fname.rfind('cov.fif') > -1:
