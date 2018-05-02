@@ -26,7 +26,8 @@ def create_pipeline_time_series_to_spectral_connectivity(main_path,
                                                          n_windows=[],
                                                          mode='multitaper',
                                                          is_sensor_space=True,
-                                                         epoch_window_length=None):
+                                                         epoch_window_length=None,
+                                                         is_plot_spectral=True):
     """
     Description:
 
@@ -51,7 +52,9 @@ def create_pipeline_time_series_to_spectral_connectivity(main_path,
         epoch_window_length : float
              epoched data
         is_sensor_space : bool (default True)
-             True if we compute connectivity on sensor space
+            True if we compute connectivity on sensor space
+        is_plot_spectral :  bool (default True)
+            True if we want to plot the spectral connectivity matrix 
 
     Inputs (inputnode):
 
@@ -89,7 +92,6 @@ def create_pipeline_time_series_to_spectral_connectivity(main_path,
 
         spectral.inputs.con_method = con_method
         spectral.inputs.export_to_matlab = export_to_matlab
-#        spectral.inputs.sfreq = sfreq
         spectral.inputs.multi_con = multi_con
         spectral.inputs.mode = mode
         if epoch_window_length:
@@ -98,31 +100,29 @@ def create_pipeline_time_series_to_spectral_connectivity(main_path,
         pipeline.connect(inputnode, 'sfreq', spectral, 'sfreq')
         pipeline.connect(inputnode, 'ts_file', spectral, 'ts_file')
         pipeline.connect(inputnode, 'freq_band', spectral, 'freq_band')
-#        pipeline.connect(inputnode, 'epoch_window_length', spectral, 'epoch_window_length')
 
         # plot spectral
-        if multi_con:
-            plot_spectral = pe.MapNode(interface=PlotSpectralConn(
-            ), name="plot_spectral", iterfield=['conmat_file'])
+        if is_plot_spectral:
+            if multi_con:
+                plot_spectral = pe.MapNode(interface=PlotSpectralConn(
+                ), name="plot_spectral", iterfield=['conmat_file'])
 
-            plot_spectral.inputs.is_sensor_space = is_sensor_space
-            pipeline.connect(inputnode,  'labels_file',
-                             plot_spectral, 'labels_file')
-    #        pipeline.connect(inputnode,  'is_sensor_space',plot_spectral,'is_sensor_space')
-            pipeline.connect(spectral, "conmat_files",
-                             plot_spectral, 'conmat_file')
+                plot_spectral.inputs.is_sensor_space = is_sensor_space
+                pipeline.connect(inputnode,  'labels_file',
+                                 plot_spectral, 'labels_file')
+                pipeline.connect(spectral, "conmat_files",
+                                 plot_spectral, 'conmat_file')
 
-        else:
+            else:
 
-            plot_spectral = pe.Node(
-                interface=PlotSpectralConn(), name="plot_spectral")
+                plot_spectral = pe.Node(
+                    interface=PlotSpectralConn(), name="plot_spectral")
 
-            plot_spectral.inputs.is_sensor_space = is_sensor_space
-            pipeline.connect(inputnode,  'labels_file',
-                             plot_spectral, 'labels_file')
-    #        pipeline.connect(inputnode,  'is_sensor_space',plot_spectral,'is_sensor_space')
-            pipeline.connect(spectral, "conmat_file",
-                             plot_spectral, 'conmat_file')
+                plot_spectral.inputs.is_sensor_space = is_sensor_space
+                pipeline.connect(inputnode,  'labels_file',
+                                 plot_spectral, 'labels_file')
+                pipeline.connect(spectral, "conmat_file",
+                                 plot_spectral, 'conmat_file')
 
     else:
 
@@ -147,11 +147,7 @@ def create_pipeline_time_series_to_spectral_connectivity(main_path,
         spectral.inputs.mode = mode
         spectral.inputs.epoch_window_length = epoch_window_length
 
-        #pipeline.connect(inputnode, 'sfreq', spectral, 'sfreq')
         pipeline.connect(win_ts, 'win_ts_files', spectral, 'ts_file')
         pipeline.connect(inputnode, 'freq_band', spectral, 'freq_band')
-
-        #pipeline.connect(inputnode, 'index', spectral, 'index')
-        #pipeline.connect(inputnode, 'epoch_window_length', spectral, 'epoch_window_length')
 
     return pipeline
