@@ -305,12 +305,13 @@ class NoiseCovariance(BaseInterface):
 #                    sys.exit("No covariance matrix as input!")
                     # TODO creare una matrice diagonale?
 
-                    raw = read_raw_fif(raw_filename)
+                    raw = read_raw_fif(raw_filename, preload=True)
                     picks = pick_types(raw.info, meg=True, ref_meg=False,
                                        exclude='bads')
 
+                    ch_names = [raw.info['ch_names'][i] for i in picks]
                     noise_cov = Covariance(np.identity(len(picks)),
-                                           raw.info['ch_names'],
+                                           ch_names,
                                            raw.info['bads'],
                                            raw.info['projs'], nfree=0)
 
