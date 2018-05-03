@@ -236,6 +236,7 @@ def compute_ROIs_inv_sol(raw_filename, sbj_id, sbj_dir, fwd_filename,
 
     from ephypype.preproc import create_reject_dict
     from ephypype.source_space import create_MNI_label_files
+    from ephypype.import_hdf5 import write_hdf5
 
     try:
         traits.undefined(events_id)
@@ -361,8 +362,11 @@ def compute_ROIs_inv_sol(raw_filename, sbj_id, sbj_dir, fwd_filename,
 
     if save_stc:
         for i in range(len(stc)):
-            stc_file = op.abspath(basename + '_stc_' + str(i) + '.npy')
-            np.save(stc_file, stc[i].data)
+#            stc_file = op.abspath(basename + '_stc_' + str(i) + '.npy')
+#            np.save(stc_file, stc[i].data)
+
+            stc_file = op.abspath(basename + '_stc_' + str(i) + '.hdf5')
+            write_hdf5(stc_file, stc[i].data, dataset_name='stc_data')
 
     if not is_mixed:
         # these coo are in MRI space and we have to convert to MNI space
