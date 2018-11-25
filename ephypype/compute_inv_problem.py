@@ -341,7 +341,7 @@ def _compute_inverse_solution(raw_filename, sbj_id, subjects_dir, fwd_filename,
 
         write_hdf5(stc_file, stc_data, dataset_name='stc_data')
 
-    if ROIs_mean:
+    if ROIs_mean and not is_mixed:
         label_ts, labels_file, label_names_file, label_coords_file = \
             _compute_mean_ROIs(stc, sbj_id, subjects_dir, parc,
                                inverse_operator, forward, aseg, is_fixed)
