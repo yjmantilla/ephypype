@@ -46,13 +46,30 @@ def convert_cortex_mri_to_mni(labels_cortex, vertno_left, vertno_right,
     ----------
     labels_cortex : list
         List of labels.
+    vertno_left : array
+        Indices of left hemi
+    vertno_right : array
+        Indices of right hemi
+    sbj : str
+        Subject id
+    subjects_dir : str
+        Subjects directory
+
+    Returns
+    -------
+    roi : dict
+        Dictionary containing ROIs info (name, colors, MNI coo, vertices)
     """
     roi_mni_coords = list()
     roi_name = list()
     roi_color = list()
+    roi_vertidx = list()
+
+    n_points = len(vertno_left) + len(vertno_right)
+    roi_mapping = np.array(np.zeros(n_points) - 1)
 
     # labels_cortex is in MRI (surface RAS) space
-    for label in labels_cortex:
+    for r, label in enumerate(labels_cortex):
         if label.hemi == 'lh':
             # from MRI (surface RAS) -> MNI
             roi_coo_mni = mne.vertex_to_mni(label.vertices, 0, sbj,
@@ -61,28 +78,33 @@ def convert_cortex_mri_to_mni(labels_cortex, vertno_left, vertno_right,
             # get the vertices of the ROI used in the src space (index points
             # to dense src space of FS segmentation)
             this_vertno = np.intersect1d(vertno_left, label.vertices)
+            vertidx = np.searchsorted(vertno_left, this_vertno)
         elif label.hemi == 'rh':
             roi_coo_mni = mne.vertex_to_mni(label.vertices, 1, sbj,
                                             subjects_dir)
 
             this_vertno = np.intersect1d(vertno_right, label.vertices)
-
+            vertidx = np.searchsorted(vertno_right, this_vertno) + \
+                len(vertno_left)
         # find
         vertidx_roi = np.searchsorted(label.vertices, this_vertno)
 
         roi_mni_coords.append(roi_coo_mni[vertidx_roi, :])
         roi_name.append(label.name)
         roi_color.append(label.color)
+        roi_vertidx.append(vertidx)
+        roi_mapping[vertidx] = r
 
-    # TODO check!
-    #    nvert_ROI = [len(vn) for vn in roi_mni_coords]
-    #    if np.sum(nvert_ROI) != (len(vertno_left) + len(vertno_right)):
-    #        raise RuntimeError('number of src space vertices must be equal \
-    #                            to the total number of ROI vertices')
+    nv = [np.array(np.where(roi_mapping == i)).shape[1]
+          for i in range(len(roi_name))]
+    nvert_ROI = [len(vn) for vn in roi_mni_coords]
+    assert np.sum(nv) == np.sum(nvert_ROI), 'Error'
 
     roi_mni = dict(ROI_name=roi_name, ROI_MNI_coords=roi_mni_coords,
-                   ROI_color=roi_color)
+                   ROI_color=roi_color, ROI_vertidx=roi_vertidx,
+                   ROI_mapping=roi_mapping)
 
+#    v = np.concatenate(ROI_vertidx)
     return roi_mni
 
 
