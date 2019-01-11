@@ -334,12 +334,14 @@ def _compute_inverse_solution(raw_filename, sbj_id, subjects_dir, fwd_filename,
     print('**************************************************************')
     if all_src_space:
         stc_data = list()
-        stc_file = op.abspath(basename + '_stc.hdf5')
+        stc_file = op.abspath(basename + '_stc.npz')
 
         for i in range(len(stc)):
             stc_data.append(stc[i].data)
 
-        write_hdf5(stc_file, stc_data, dataset_name='stc_data')
+#        write_hdf5(stc_file, stc_data, dataset_name='stc_data')
+        np.savez_compressed(stc_file, np.float32(stc_data),
+                            dataset_name='stc_data')
 
     if ROIs_mean and not is_mixed:
         label_ts, labels_file, label_names_file, label_coords_file = \
