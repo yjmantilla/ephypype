@@ -3,6 +3,7 @@
 # Author: Dmitrii Altukhov <dm-altukhov@ya.ru>
 #         Annalisa Pascarella <a.pascarella@iac.cnr.it>
 import os
+import h5py
 import numpy as np
 
 from nipype.utils.filemanip import split_filename as split_f
@@ -66,7 +67,13 @@ def _compute_and_save_src_psd(data_fname, sfreq, fmin=0, fmax=120,
                               n_fft=256, n_overlap=0,
                               n_jobs=1, verbose=None):
     """Load epochs/raw from file, compute psd and save the result."""
-    src_data = np.load(data_fname)
+    _, basename, ext = split_f(data_fname)
+    if ext == '.npy':
+        src_data = np.load(data_fname)
+    elif ext == '.hdf5':
+        hf = h5py.File(data_fname, 'r')
+        src_data = hf['stc_data'][()]
+        
     dim = src_data.shape
     if len(dim) == 3 and dim[0] == 1:
         src_data = np.squeeze(src_data)
