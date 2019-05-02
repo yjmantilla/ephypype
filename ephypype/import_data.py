@@ -23,7 +23,7 @@ def _convert_ds_to_raw_fif(ds_file):
         raw.save(raw_fif_file)
     else:
         print(('*** RAW FIF file %s exists!!!' % raw_fif_file))
-
+        
     return raw_fif_file
 
 
@@ -78,6 +78,17 @@ def npy2hdf5(filename, dataset_name='dataset', dtype='f'):
     print('converting to hdf5')
 
     write_hdf5(filename, data, dataset_name=dataset_name, dtype=dtype)
+
+
+def _read_input_data(data_fname):
+    _, basename, ext = split_f(data_fname)
+    if ext == '.npy':
+        data = np.load(data_fname)
+    elif ext == '.hdf5':
+        hf = h5py.File(data_fname, 'r')
+        data = hf['stc_data'][()]
+
+    return data
 
 
 def _import_mat_to_conmat(mat_file, data_field_name='F',

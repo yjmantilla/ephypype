@@ -3,13 +3,14 @@
 # Author: Dmitrii Altukhov <dm-altukhov@ya.ru>
 #         Annalisa Pascarella <a.pascarella@iac.cnr.it>
 import os
-import h5py
 import numpy as np
 
 from nipype.utils.filemanip import split_filename as split_f
 from mne import read_epochs
 from mne.io import read_raw_fif
 from scipy.signal import welch
+
+from .import_data import _read_input_data
 
 
 def _compute_and_save_psd(data_fname, fmin=0, fmax=120,
@@ -67,13 +68,8 @@ def _compute_and_save_src_psd(data_fname, sfreq, fmin=0, fmax=120,
                               n_fft=256, n_overlap=0,
                               n_jobs=1, verbose=None):
     """Load epochs/raw from file, compute psd and save the result."""
-    _, basename, ext = split_f(data_fname)
-    if ext == '.npy':
-        src_data = np.load(data_fname)
-    elif ext == '.hdf5':
-        hf = h5py.File(data_fname, 'r')
-        src_data = hf['stc_data'][()]
-        
+    src_data = _read_input_data(data_fname)
+
     dim = src_data.shape
     if len(dim) == 3 and dim[0] == 1:
         src_data = np.squeeze(src_data)

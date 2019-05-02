@@ -14,7 +14,7 @@ def create_pipeline_time_series_to_spectral_connectivity(
         main_path, pipeline_name='ts_to_conmat', con_method='coh',
         multi_con=False, export_to_matlab=False, n_windows=[],
         mode='multitaper', is_sensor_space=True, epoch_window_length=None,
-        gathering_method="mean"):
+        gathering_method="mean", is_plot=True):
     """Connectivity pipeline.
 
     Compute spectral connectivity in a given frequency bands.
@@ -94,27 +94,28 @@ def create_pipeline_time_series_to_spectral_connectivity(
         pipeline.connect(inputnode, 'ts_file', spectral, 'ts_file')
         pipeline.connect(inputnode, 'freq_band', spectral, 'freq_band')
 
-        # plot spectral
-        if multi_con:
-            plot_spectral = pe.MapNode(interface=PlotSpectralConn(
-            ), name="plot_spectral", iterfield=['conmat_file'])
-
-            plot_spectral.inputs.is_sensor_space = is_sensor_space
-            pipeline.connect(inputnode, 'labels_file',
-                             plot_spectral, 'labels_file')
-            pipeline.connect(spectral, "conmat_files",
-                             plot_spectral, 'conmat_file')
-
-        else:
-
-            plot_spectral = pe.Node(
-                interface=PlotSpectralConn(), name="plot_spectral")
-
-            plot_spectral.inputs.is_sensor_space = is_sensor_space
-            pipeline.connect(inputnode, 'labels_file',
-                             plot_spectral, 'labels_file')
-            pipeline.connect(spectral, "conmat_file",
-                             plot_spectral, 'conmat_file')
+        if is_plot:
+            # plot spectral
+            if multi_con:
+                plot_spectral = pe.MapNode(interface=PlotSpectralConn(
+                ), name="plot_spectral", iterfield=['conmat_file'])
+    
+                plot_spectral.inputs.is_sensor_space = is_sensor_space
+                pipeline.connect(inputnode, 'labels_file',
+                                 plot_spectral, 'labels_file')
+                pipeline.connect(spectral, "conmat_files",
+                                 plot_spectral, 'conmat_file')
+    
+            else:
+    
+                plot_spectral = pe.Node(
+                    interface=PlotSpectralConn(), name="plot_spectral")
+    
+                plot_spectral.inputs.is_sensor_space = is_sensor_space
+                pipeline.connect(inputnode, 'labels_file',
+                                 plot_spectral, 'labels_file')
+                pipeline.connect(spectral, "conmat_file",
+                                 plot_spectral, 'conmat_file')
 
     else:
 

@@ -16,6 +16,7 @@ from nipype.utils.filemanip import split_filename as split_f
 from ...spectral import (_compute_and_save_spectral_connectivity,
                          _compute_and_save_multi_spectral_connectivity,
                          _plot_circular_connectivity)
+from ...import_data import _read_input_data
 
 
 # -------------------------- SpectralConn -------------------------- #
@@ -125,7 +126,8 @@ class SpectralConn(BaseInterface):
 
             data = np.load(self.inputs.ts_file)
         else:
-            raw_data = np.load(self.inputs.ts_file)
+            raw_data = _read_input_data(self.inputs.ts_file)
+#            raw_data = np.load(self.inputs.ts_file)
 
             print(raw_data.shape)
             print(int(epoch_window_length * sfreq))
