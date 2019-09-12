@@ -23,7 +23,10 @@ def _preprocess_fif(fif_file, l_freq=None, h_freq=None, down_sfreq=None):
     """Filter and downsample data."""
     _, basename, ext = split_f(fif_file)
 
-    raw = read_raw_fif(fif_file, preload=True)
+    if fif_file.rfind('epo') > -1:
+        raw = read_epochs(fif_file, preload=True)
+    else:
+        raw = read_raw_fif(fif_file, preload=True)
     filt_str, down_str = '', ''
 
     select_sensors = pick_types(raw.info, meg=True, ref_meg=False, eeg=False)
