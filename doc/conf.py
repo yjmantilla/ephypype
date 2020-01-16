@@ -16,8 +16,8 @@
 # add these directories to sys.path here. If the directory is relative to the
 # documentation root, use os.path.abspath to make it absolute, like shown here.
 #
-# import os
-# import sys
+import os
+import sys
 # sys.path.insert(0, os.path.abspath('.'))
 
 from datetime import date
@@ -31,6 +31,10 @@ from visbrain.config import CONFIG
 # If your documentation needs a minimal Sphinx version, state it here.
 #
 # needs_sphinx = '1.0'
+
+curdir = os.path.dirname(__file__)
+sys.path.append(os.path.abspath(os.path.join(curdir, '..', 'ephypype')))
+sys.path.append(os.path.abspath(os.path.join(curdir, '..', 'ephypype', 'pipelines')))
 
 # Add any Sphinx extension module names here, as strings. They can be
 # extensions coming with Sphinx (named 'sphinx.ext.*') or your custom
@@ -117,6 +121,7 @@ html_theme_options = {
     'navbar_links': [
         ("Gallery", "auto_examples/index"),
         ("API", "api"),
+        ("Tutorial", "tutorial/index"),
         ("Github", "https://github.com/neuropycon/ephypype", True),
     ],
     'bootswatch_theme': "united"}
