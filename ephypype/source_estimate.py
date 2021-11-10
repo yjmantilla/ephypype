@@ -15,7 +15,8 @@ from .source_space import _create_MNI_label_files
 
 
 def _process_stc(stc, basename, sbj_id, subjects_dir, parc, forward,
-                 aseg, is_fixed, all_src_space=False, ROIs_mean=True):
+                 aseg, is_fixed, all_src_space=False, ROIs_mean=True,
+                 is_volume=False):
     if not isinstance(stc, list):
         print('***')
         print(('stc dim ' + str(stc.shape)))
@@ -27,9 +28,14 @@ def _process_stc(stc, basename, sbj_id, subjects_dir, parc, forward,
         print(('len stc %d' % len(stc)))
         print('***')
 
+    if is_volume:
+        ROIs_mean = False
+        all_src_space = True
+
     print('**************************************************************')
     print('all_src_space: {}'.format(all_src_space))
     print('ROIs_mean: {}'.format(ROIs_mean))
+    print('is_volume: {}'.format(is_volume))
     print('**************************************************************')
     if all_src_space:
         stc_data = list()

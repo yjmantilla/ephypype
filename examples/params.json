@@ -30,6 +30,7 @@
     "inverse":
     {
         "spacing": "oct-6",
+        "pos": 7.0,
         "snr": 1.0,
         "img_method": "MNE",
         "method": "LCMV",

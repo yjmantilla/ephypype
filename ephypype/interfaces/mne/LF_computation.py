@@ -25,13 +25,17 @@ class LFComputationConnInputSpec(BaseInterfaceInputSpec):
     trans_file = traits.String(desc='trans file name', mandatory=False)
     spacing = traits.String(desc='spacing to use to setup a source space',
                             mandatory=False)
+    pos = traits.Float(desc='spacing to use to setup a volume source space',
+                       mandatory=False)
+    is_volume = traits.Bool(False,
+                            desc='if true volume src space will be defined',
+                            usedefault=True, mandatory=False)
     aseg = traits.Bool(desc='if true sub structures will be considered',
                        mandatory=False)
     aseg_labels = traits.List(desc='list of substructures in the src space',
                               mandatory=False)
     save_mixed_src_space = traits.Bool(False, desc='if true save src space',
-                                       usedefault=True,
-                                       mandatory=False)
+                                       usedefault=True, mandatory=False)
 
 
 class LFComputationConnOutputSpec(TraitedSpec):
@@ -53,6 +57,10 @@ class LFComputation(BaseInterface):
         filename of the raw data
     spacing : str (default 'ico-5')
         spacing to use to setup a source space
+    pos : float (default 7.0)
+        spacing to use to setup a volume source space
+    is_volume: bool (defualt False)
+        if True a volume source space will be created
     aseg: bool (defualt False)
         if True a mixed source space will be created and the sub cortical
         regions defined in aseg_labels will be added to the source space
@@ -77,21 +85,24 @@ class LFComputation(BaseInterface):
         raw_fname = self.inputs.raw_fname
         # trans_fname = self.inputs.trans_fname
         trans_file = self.inputs.trans_file
+        is_volume = self.inputs.is_volume
         aseg = self.inputs.aseg
+        pos = self.inputs.pos
         spacing = self.inputs.spacing
         aseg_labels = self.inputs.aseg_labels
         save_mixed_src_space = self.inputs.save_mixed_src_space
 
         self.fwd_filename = _get_fwd_filename(raw_fname, aseg,
-                                              spacing)
+                                              spacing, pos, is_volume)
 
         # check if we have just created the fwd matrix
         if not op.isfile(self.fwd_filename):
             print('\n*** Computing FWD matrix {} ***\n'.format(
                   self.fwd_filename))
             bem = _create_bem_sol(subjects_dir, sbj_id)  # bem solution
-
-            src = _create_src_space(subjects_dir, sbj_id, spacing)  # src space
+            # src space
+            src = _create_src_space(
+                subjects_dir, sbj_id, spacing, pos, is_volume)
 
             if aseg:
                 src = _create_mixed_source_space(subjects_dir, sbj_id, spacing,

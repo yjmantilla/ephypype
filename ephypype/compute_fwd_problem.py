@@ -66,19 +66,29 @@ def _create_bem_sol(subjects_dir, sbj_id):
     return bem
 
 
-def _create_src_space(subjects_dir, sbj_id, spacing):
+def _create_src_space(subjects_dir, sbj_id, spacing, pos, is_volume=False):
     """Create a source space."""
     bem_dir = op.join(subjects_dir, sbj_id, 'bem')
 
     # check if source space exists, if not it creates using mne-python fun
     # we have to create the cortical surface source space even when aseg is
     # True
-    src_fname = op.join(bem_dir, '%s-%s-src.fif' % (sbj_id, spacing))
+    if is_volume:
+        src_fname = op.join(
+            bem_dir, '{}-vol-{:1.0f}-src.fif'.format(sbj_id, pos))
+    else:
+        src_fname = op.join(bem_dir, '{}-{}-src.fif'.format(sbj_id, spacing))
     print('*** subject dir {}'.format(subjects_dir))
     if not op.isfile(src_fname):
-        src = mne.setup_source_space(sbj_id, subjects_dir=subjects_dir,
-                                     spacing=spacing.replace('-', ''),
-                                     add_dist=False, n_jobs=1)
+        if is_volume:
+            mri_file = op.join(subjects_dir, sbj_id, 'mri', 'T1.mgz')
+            surface = op.join(subjects_dir, sbj_id, 'bem', 'inner_skull.surf')
+            src = mne.setup_volume_source_space(
+                sbj_id, pos=pos, mri=mri_file, mindist=2.0, surface=surface)  # noqa
+        else:
+            src = mne.setup_source_space(sbj_id, subjects_dir=subjects_dir,
+                                         spacing=spacing.replace('-', ''),
+                                         add_dist=False, n_jobs=1)
 
         mne.write_source_spaces(src_fname, src, overwrite=True)
         print(('\n*** source space file %s written ***\n' % src_fname))
@@ -168,10 +178,13 @@ def _is_trans(raw_fname, subject_id, trans_fname_template=None):
     return trans_fname
 
 
-def _get_fwd_filename(raw_fpath, aseg, spacing):
+def _get_fwd_filename(raw_fpath, aseg, spacing, pos, is_volume):
 
     data_path, raw_fname, ext = split_f(raw_fpath)
-    fwd_filename = raw_fname + '-' + spacing
+    if is_volume:
+        fwd_filename = raw_fname + '-' + 'vol-{:1.0f}'.format(pos)
+    else:
+        fwd_filename = raw_fname + '-' + spacing
     if aseg:
         fwd_filename += '-aseg'
 

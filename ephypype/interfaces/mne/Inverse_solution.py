@@ -51,6 +51,9 @@ class InverseSolutionConnInputSpec(BaseInterfaceInputSpec):
     parc = traits.String('aparc', usedefault=True,
                          desc='the parcellation to use: aparc vs aparc.a2009s',
                          mandatory=False)
+    is_volume = traits.Bool(False,
+                            desc='if true volume src space will be defined',
+                            usedefault=True, mandatory=False)
     aseg = traits.Bool(desc='if true sub structures will be considered',
                        mandatory=False)
     aseg_labels = traits.List(desc='list of substructures in the src space',
@@ -114,6 +117,8 @@ class InverseSolution(BaseInterface):
             The SNR value used to define the regularization parameter
         parc: str
             The parcellation defining the ROIs atlas in the source space
+        is_volume: bool (defualt False)
+            if True a volume source space will be created
         aseg: bool
             If True a mixed source space will be created and the sub cortical
             regions defined in aseg_labels will be added to the source space
@@ -159,6 +164,7 @@ class InverseSolution(BaseInterface):
         snr = self.inputs.snr
         parc = self.inputs.parc
         aseg = self.inputs.aseg
+        is_volume = self.inputs.is_volume
         aseg_labels = self.inputs.aseg_labels
         all_src_space = self.inputs.all_src_space
         ROIs_mean = self.inputs.ROIs_mean
@@ -177,7 +183,8 @@ class InverseSolution(BaseInterface):
                                           aseg=aseg, aseg_labels=aseg_labels,
                                           all_src_space=all_src_space,
                                           ROIs_mean=ROIs_mean,
-                                          is_fixed=is_fixed)
+                                          is_fixed=is_fixed,
+                                          is_volume=is_volume)
         else:
             self.ts_file, self.labels, self.label_names, \
                 self.label_coords = \
@@ -187,7 +194,8 @@ class InverseSolution(BaseInterface):
                                                parc=parc,
                                                all_src_space=all_src_space,
                                                ROIs_mean=ROIs_mean,
-                                               is_fixed=is_fixed)
+                                               is_fixed=is_fixed,
+                                               is_volume=is_volume)
             self.stc_files = []
 
         return runtime

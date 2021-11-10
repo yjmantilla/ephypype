@@ -149,7 +149,7 @@ def _compute_inverse_solution(raw_filename, sbj_id, subjects_dir, fwd_filename,
                               snr=1.0, inv_method='MNE',
                               parc='aparc', aseg=False, aseg_labels=[],
                               all_src_space=False, ROIs_mean=True,
-                              is_fixed=False):
+                              is_fixed=False, is_volume=False):
     """
     Compute the inverse solution on raw/epoched data and return the average
     time series computed in the N_r regions of the source space defined by
@@ -244,7 +244,7 @@ def _compute_inverse_solution(raw_filename, sbj_id, subjects_dir, fwd_filename,
         loose = 0
         depth = None
         pick_ori = None
-    elif aseg:
+    elif aseg or is_volume:
         loose = 1
         depth = None
         pick_ori = None
@@ -328,11 +328,10 @@ def _compute_inverse_solution(raw_filename, sbj_id, subjects_dir, fwd_filename,
                                 buffer_size=1000,
                                 pick_ori=pick_ori)  # None 'normal'
 
-
     ts_file, labels_file, label_names_file, label_coords_file = \
         _process_stc(stc, basename, sbj_id, subjects_dir, parc, forward,
                      aseg, is_fixed, all_src_space=all_src_space,
-                     ROIs_mean=ROIs_mean)
+                     ROIs_mean=ROIs_mean, is_volume=is_volume)
 
     return ts_file, labels_file, label_names_file, \
         label_coords_file, stc_files
@@ -341,7 +340,7 @@ def _compute_inverse_solution(raw_filename, sbj_id, subjects_dir, fwd_filename,
 def _compute_LCMV_inverse_solution(raw_filename, sbj_id, subjects_dir,
                                    fwd_filename, cov_fname, parc='aparc',
                                    all_src_space=False, ROIs_mean=True,
-                                   is_fixed=False):
+                                   is_fixed=False, is_volume=False):
     """
     Compute the inverse solution on raw data by LCMV and return the average
     time series computed in the N_r regions of the source space defined by
@@ -405,7 +404,8 @@ def _compute_LCMV_inverse_solution(raw_filename, sbj_id, subjects_dir,
 
     ts_file, labels_file, label_names_file, label_coords_file = \
         _process_stc(stc, basename, sbj_id, subjects_dir, parc, forward,
-                     False, is_fixed, all_src_space=False, ROIs_mean=True)
+                     False, is_fixed, all_src_space=False, ROIs_mean=True,
+                     is_volume=is_volume)
 
     return ts_file, labels_file, label_names_file, \
         label_coords_file

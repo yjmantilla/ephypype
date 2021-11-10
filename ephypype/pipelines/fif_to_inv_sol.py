@@ -16,6 +16,7 @@ from ..interfaces.mne.preproc import DefineEpochs
 def create_pipeline_source_reconstruction(main_path, subjects_dir,
                                           pipeline_name='inv_sol_pipeline',
                                           spacing='ico-5',
+                                          pos=7.0,
                                           inv_method='MNE',
                                           snr=1.0,
                                           is_epoched=False,
@@ -31,7 +32,8 @@ def create_pipeline_source_reconstruction(main_path, subjects_dir,
                                           all_src_space=False,
                                           ROIs_mean=True,
                                           save_mixed_src_space=False,
-                                          is_fixed=False):
+                                          is_fixed=False,
+                                          is_volume=False):
     """Source reconstruction pipeline.
 
     Parameters
@@ -99,8 +101,12 @@ def create_pipeline_source_reconstruction(main_path, subjects_dir,
     # Lead Field computation Node
     LF_computation = pe.Node(interface=LFComputation(), name='LF_computation')
     LF_computation.inputs.subjects_dir = subjects_dir
-    LF_computation.inputs.spacing = spacing
+    if is_volume:
+        LF_computation.inputs.pos = pos
+    else:
+        LF_computation.inputs.spacing = spacing
     LF_computation.inputs.aseg = aseg
+    LF_computation.inputs.is_volume = is_volume
     if aseg:
         LF_computation.inputs.aseg_labels = aseg_labels
         LF_computation.inputs.save_mixed_src_space = save_mixed_src_space
@@ -151,6 +157,7 @@ def create_pipeline_source_reconstruction(main_path, subjects_dir,
 
     inv_solution.inputs.parc = parc
     inv_solution.inputs.aseg = aseg
+    inv_solution.inputs.is_volume = is_volume
     if aseg:
         inv_solution.inputs.aseg_labels = aseg_labels
 
