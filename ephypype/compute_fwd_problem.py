@@ -188,7 +188,8 @@ def _get_fwd_filename(raw_fpath, aseg, spacing, pos, is_volume):
     if aseg:
         fwd_filename += '-aseg'
 
-    fwd_filename = op.join(data_path, fwd_filename + '-fwd.fif')
+    # fwd_filename = op.join(data_path, fwd_filename + '-fwd.fif')
+    fwd_filename = op.abspath(fwd_filename + '-fwd.fif')
 
     print(('\n *** fwd_filename {} ***\n'.format(fwd_filename)))
     return fwd_filename
