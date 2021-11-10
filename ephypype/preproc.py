@@ -100,7 +100,7 @@ def _compute_ica(fif_file, raw_fif_file, data_type,
     flat = dict(mag=1e-13, grad=1e-13)
 
     ica = ICA(n_components=n_components, method='fastica', max_iter='auto')
-    ica.fit(orig_raw, picks=select_sensors, reject=reject, flat=flat)
+    ica.fit(orig_raw, picks=select_sensors, reject=reject, flat=flat, decim=3)
     del orig_raw
     # -------------------- Save ica timeseries ---------------------------- #
     ica_ts_file = os.path.abspath(basename + "_ica-tseries.fif")
