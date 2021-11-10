@@ -244,10 +244,14 @@ def _compute_inverse_solution(raw_filename, sbj_id, subjects_dir, fwd_filename,
         loose = 0
         depth = None
         pick_ori = None
-    elif aseg or is_volume:
+    elif aseg:
         loose = 1
         depth = None
         pick_ori = None
+    elif is_volume:
+        loose = 1
+        depth = None
+        pick_ori = 'vector'
     else:
         loose = 0.2
         depth = 0.8
