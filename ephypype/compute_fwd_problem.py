@@ -104,6 +104,8 @@ def _create_mixed_source_space(subjects_dir, sbj_id, spacing, labels, src,
             pos = 5.0
         elif spacing == 'oct-5':
             pos = 7.0
+        elif spacing ==  'ico-4':
+            pos = 6.0
         elif spacing == 'ico-5':
             pos = 3.0
 
@@ -116,6 +118,7 @@ def _create_mixed_source_space(subjects_dir, sbj_id, spacing, labels, src,
                                                       volume_label=l,
                                                       subjects_dir=subjects_dir)  # noqa
             src += vol_label
+            print('reach')
 
         if save_mixed_src_space:
             mne.write_source_spaces(src_aseg_fname, src, overwrite=True)
@@ -173,9 +176,13 @@ def _get_fwd_filename(raw_fpath, aseg, spacing):
     data_path, raw_fname, ext = split_f(raw_fpath)
     fwd_filename = raw_fname + '-' + spacing
     if aseg:
-        fwd_filename += '-aseg'
+        pattern = f'*{spacing}-aseg-fwd.fif'
+    else:
+        pattern = f'*{spacing}-fwd.fif'
+    #sub-balai_modality-meg_type-epo-oct-6-fwd.fif
+    fwd_filename = glob.glob(op.join(data_path,pattern))[0]
 
-    fwd_filename = op.join(data_path, fwd_filename + '-fwd.fif')
+    #fwd_filename = op.join(data_path, fwd_filename + '-fwd.fif')
 
     print(('\n *** fwd_filename {} ***\n'.format(fwd_filename)))
     return fwd_filename

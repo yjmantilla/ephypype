@@ -247,7 +247,7 @@ def _compute_inverse_solution(raw_filename, sbj_id, subjects_dir, fwd_filename,
     elif aseg:
         loose = 1
         depth = None
-        pick_ori = None
+        pick_ori = 'vector'
     else:
         loose = 0.2
         depth = 0.8
