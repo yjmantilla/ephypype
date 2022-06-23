@@ -100,8 +100,10 @@ def _get_er_data(er_fname_template):
 
 def compute_cov_identity(raw_filename):
     "Compute Identity Noise Covariance matrix."
-    raw = read_raw_fif(raw_filename)
-
+    try:
+        raw = read_raw_fif(raw_filename)
+    except:
+        raw = read_epochs(raw_filename)
     data_path, basename, ext = split_f(raw_filename)
     cov_fname = op.join(data_path, 'identity_noise-cov.fif')
 
