@@ -15,7 +15,7 @@ from mne.evoked import write_evokeds, read_evokeds
 from mne.minimum_norm import make_inverse_operator, apply_inverse_raw
 from mne.minimum_norm import apply_inverse_epochs, apply_inverse
 from mne.beamformer import apply_lcmv_raw,apply_lcmv_epochs, make_lcmv
-from mne import compute_raw_covariance, pick_types, write_cov
+from mne import compute_raw_covariance,compute_covariance, pick_types, write_cov
 
 from nipype.utils.filemanip import split_filename as split_f
 
@@ -386,11 +386,11 @@ def _compute_LCMV_inverse_solution(raw_filename, sbj_id, subjects_dir,
     """
     print(('\n*** READ raw filename %s ***\n' % raw_filename))
     if is_epoched:
-        epochs = read_epochs(raw_filename)
-        info = epochs.info
+        raw = read_epochs(raw_filename)
     else:
         raw = read_raw_fif(raw_filename, preload=True)
-        info = raw.info
+    raw = raw.pick_types(meg=True, ref_meg=False, exclude='bads')
+    info = raw.info
 
     subj_path, basename, ext = split_f(raw_filename)
 
@@ -402,9 +402,12 @@ def _compute_LCMV_inverse_solution(raw_filename, sbj_id, subjects_dir,
     forward = mne.convert_forward_solution(forward, surf_ori=True)
 
     # compute data covariance matrix
-#    reject = _create_reject_dict(raw.info)
-    picks = pick_types(raw.info, meg=True, ref_meg=False, exclude='bads')
-    data_cov = mne.compute_raw_covariance(raw, picks=picks)
+    # reject = _create_reject_dict(raw.info)
+    #picks = pick_types(info, meg=True, ref_meg=False, exclude='bads')
+    if is_epoched:
+        data_cov = compute_covariance(raw)
+    else:
+        data_cov = compute_raw_covariance(raw) #, picks=picks)
 
     # compute LCMV filters
     filters = make_lcmv(info, forward, data_cov, reg=0.05,
