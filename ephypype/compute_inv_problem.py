@@ -14,7 +14,7 @@ from mne import read_epochs
 from mne.evoked import write_evokeds, read_evokeds
 from mne.minimum_norm import make_inverse_operator, apply_inverse_raw
 from mne.minimum_norm import apply_inverse_epochs, apply_inverse
-from mne.beamformer import apply_lcmv_raw, make_lcmv
+from mne.beamformer import apply_lcmv_raw,apply_lcmv_epochs, make_lcmv
 from mne import compute_raw_covariance, pick_types, write_cov
 
 from nipype.utils.filemanip import split_filename as split_f
@@ -343,7 +343,7 @@ def _compute_inverse_solution(raw_filename, sbj_id, subjects_dir, fwd_filename,
 def _compute_LCMV_inverse_solution(raw_filename, sbj_id, subjects_dir,
                                    fwd_filename, cov_fname, parc='aparc',
                                    all_src_space=False, ROIs_mean=True,
-                                   is_fixed=False):
+                                   is_epoched=False,is_fixed=False):
     """
     Compute the inverse solution on raw data by LCMV and return the average
     time series computed in the N_r regions of the source space defined by
@@ -366,6 +366,9 @@ def _compute_LCMV_inverse_solution(raw_filename, sbj_id, subjects_dir,
             if True we compute the inverse for all points of the s0urce space
         ROIs_mean: bool
             if True we compute the mean of estimated time series on ROIs
+        is_epoched : bool
+            if True and events_id = None the input data are epoch data
+            in the format -epo.fif
 
 
     Outputs
@@ -382,7 +385,12 @@ def _compute_LCMV_inverse_solution(raw_filename, sbj_id, subjects_dir,
 
     """
     print(('\n*** READ raw filename %s ***\n' % raw_filename))
-    raw = read_raw_fif(raw_filename, preload=True)
+    if is_epoched:
+        epochs = read_epochs(raw_filename)
+        info = epochs.info
+    else:
+        raw = read_raw_fif(raw_filename, preload=True)
+        info = raw.info
 
     subj_path, basename, ext = split_f(raw_filename)
 
@@ -399,11 +407,14 @@ def _compute_LCMV_inverse_solution(raw_filename, sbj_id, subjects_dir,
     data_cov = mne.compute_raw_covariance(raw, picks=picks)
 
     # compute LCMV filters
-    filters = make_lcmv(raw.info, forward, data_cov, reg=0.05,
+    filters = make_lcmv(info, forward, data_cov, reg=0.05,
                         noise_cov=noise_cov, pick_ori='normal',
                         weight_norm='nai', depth=0.8)
     # apply spatial filter
-    stc = apply_lcmv_raw(raw, filters, max_ori_out='signed')
+    if is_epoched:
+        stc = apply_lcmv_epochs(raw, filters, max_ori_out='signed')
+    else:
+        stc = apply_lcmv_raw(raw, filters, max_ori_out='signed')
 
     ts_file, labels_file, label_names_file, label_coords_file = \
         _process_stc(stc, basename, sbj_id, subjects_dir, parc, forward,
