@@ -185,6 +185,7 @@ class InverseSolution(BaseInterface):
                                                subjects_dir,
                                                fwd_filename, cov_filename,
                                                parc=parc,
+                                               aseg=aseg,
                                                all_src_space=all_src_space,
                                                ROIs_mean=ROIs_mean,
                                                is_fixed=is_fixed,

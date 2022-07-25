@@ -343,7 +343,7 @@ def _compute_inverse_solution(raw_filename, sbj_id, subjects_dir, fwd_filename,
 def _compute_LCMV_inverse_solution(raw_filename, sbj_id, subjects_dir,
                                    fwd_filename, cov_fname, parc='aparc',
                                    all_src_space=False, ROIs_mean=True,
-                                   is_epoched=False,is_fixed=False):
+                                   is_epoched=False,is_fixed=False,aseg=False):
     """
     Compute the inverse solution on raw data by LCMV and return the average
     time series computed in the N_r regions of the source space defined by
@@ -399,7 +399,31 @@ def _compute_LCMV_inverse_solution(raw_filename, sbj_id, subjects_dir,
 
     print(('\n*** READ FWD SOL %s ***\n' % fwd_filename))
     forward = mne.read_forward_solution(fwd_filename)
-    forward = mne.convert_forward_solution(forward, surf_ori=True)
+
+    if not aseg:
+        print(('\n*** fixed orientation {} ***\n'.format(is_fixed)))
+        # is_fixed=True => to convert the free-orientation fwd solution to
+        # (surface-oriented) fixed orientation.
+        forward = mne.convert_forward_solution(forward, surf_ori=True,
+                                               force_fixed=is_fixed,
+                                               use_cps=False)
+
+    #forward = mne.convert_forward_solution(forward, surf_ori=True)
+
+    # compute inverse operator
+    print('\n*** COMPUTE INV OP ***\n')
+    if is_fixed:
+        loose = 0
+        depth = None
+        pick_ori = None
+    elif aseg:
+        loose = 1
+        depth = None
+        pick_ori = 'vector'
+    else:
+        loose = 0.2
+        depth = 0.8
+        pick_ori = 'normal'
 
     # compute data covariance matrix
     # reject = _create_reject_dict(raw.info)
@@ -411,8 +435,8 @@ def _compute_LCMV_inverse_solution(raw_filename, sbj_id, subjects_dir,
 
     # compute LCMV filters
     filters = make_lcmv(info, forward, data_cov, reg=0.05,
-                        noise_cov=noise_cov, pick_ori='normal',
-                        weight_norm='nai', depth=0.8)
+                        noise_cov=noise_cov, pick_ori=pick_ori,
+                        weight_norm='nai', depth=depth)
     # apply spatial filter
     if is_epoched:
         stc = apply_lcmv_epochs(raw, filters, max_ori_out='signed')
@@ -421,7 +445,7 @@ def _compute_LCMV_inverse_solution(raw_filename, sbj_id, subjects_dir,
 
     ts_file, labels_file, label_names_file, label_coords_file = \
         _process_stc(stc, basename, sbj_id, subjects_dir, parc, forward,
-                     False, is_fixed, all_src_space=False, ROIs_mean=True)
+                     aseg, is_fixed, all_src_space=all_src_space, ROIs_mean=ROIs_mean)
 
     return ts_file, labels_file, label_names_file, \
         label_coords_file
