@@ -335,7 +335,7 @@ def _compute_inverse_solution(raw_filename, sbj_id, subjects_dir, fwd_filename,
         _process_stc(stc, basename, sbj_id, subjects_dir, parc, forward,
                      aseg, is_fixed, all_src_space=all_src_space,
                      ROIs_mean=ROIs_mean)
-
+    print("****FINISHED STC****")
     return ts_file, labels_file, label_names_file, \
         label_coords_file, stc_files
 
@@ -446,6 +446,6 @@ def _compute_LCMV_inverse_solution(raw_filename, sbj_id, subjects_dir,
     ts_file, labels_file, label_names_file, label_coords_file = \
         _process_stc(stc, basename, sbj_id, subjects_dir, parc, forward,
                      aseg, is_fixed, all_src_space=all_src_space, ROIs_mean=ROIs_mean)
-
+    print("****FINISHED STC****")
     return ts_file, labels_file, label_names_file, \
         label_coords_file
